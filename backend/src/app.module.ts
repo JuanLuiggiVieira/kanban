@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { ColumnsModule } from './columns/columns.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ColumnsModule } from './columns/columns.module';
     OrganizationsModule,
     DepartmentsModule,
     ColumnsModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
