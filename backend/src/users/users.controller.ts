@@ -6,10 +6,14 @@ import {
   Param,
   Delete,
   Put,
+  UseGuards,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -20,9 +24,11 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Req() req) {
+    console.log('req.user from JwtAuthGuard:', req.user); // 🔥
+    return 'Protected user list';
   }
 
   @Get(':id')
