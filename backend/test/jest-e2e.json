@@ -6,5 +6,8 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "testTimeout": 15000
+  "testTimeout": 15000 ,
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/src/$1"
+ }
 }
