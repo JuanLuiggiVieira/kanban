@@ -8,6 +8,7 @@ describe('TaskAccessGuard', () => {
 
   const mockTask = {
     _id: 'task-id',
+    organizationId: 'org-a',
     isPersonal: false,
     createdBy: 'user-id',
     assignedTo: null,
@@ -33,7 +34,7 @@ describe('TaskAccessGuard', () => {
   it('should allow employee modifying unassigned task', async () => {
     const context = mockExecutionContext({
       userId: 'user-id',
-      roles: [{ role: 'employee' }],
+      roles: [{ organizationId: 'org-a', role: 'employee' }],
     });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -47,7 +48,7 @@ describe('TaskAccessGuard', () => {
 
     const context = mockExecutionContext({
       userId: 'user-id',
-      roles: [{ role: 'employee' }],
+      roles: [{ organizationId: 'org-a', role: 'employee' }],
     });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -61,7 +62,7 @@ describe('TaskAccessGuard', () => {
 
     const context = mockExecutionContext({
       userId: 'user-id',
-      roles: [{ role: 'employee' }],
+      roles: [{ organizationId: 'org-a', role: 'employee' }],
     });
 
     await expect(guard.canActivate(context)).rejects.toThrow();
@@ -76,7 +77,7 @@ describe('TaskAccessGuard', () => {
 
     const context = mockExecutionContext({
       userId: 'user-id',
-      roles: [{ role: 'admin' }],
+      roles: [{ organizationId: 'org-a', role: 'admin' }],
     });
 
     await expect(guard.canActivate(context)).rejects.toThrow(/personal task/i);
@@ -91,7 +92,7 @@ describe('TaskAccessGuard', () => {
 
     const context = mockExecutionContext({
       userId: 'user-id',
-      roles: [{ role: 'employee' }],
+      roles: [{ organizationId: 'org-a', role: 'employee' }],
     });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -100,9 +101,18 @@ describe('TaskAccessGuard', () => {
   it('should allow privileged user to access non-personal task', async () => {
     const context = mockExecutionContext({
       userId: 'admin-user',
-      roles: [{ role: 'admin' }],
+      roles: [{ organizationId: 'org-a', role: 'admin' }],
     });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
+  });
+
+  it('should deny access to task from another organization', async () => {
+    const context = mockExecutionContext({
+      userId: 'user-id',
+      roles: [{ organizationId: 'org-b', role: 'admin' }],
+    });
+
+    await expect(guard.canActivate(context)).rejects.toThrow(/organization/i);
   });
 });

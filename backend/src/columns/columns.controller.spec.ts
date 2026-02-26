@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ColumnsController } from './columns.controller';
 import { ColumnsService } from './columns.service';
 import { getModelToken } from '@nestjs/mongoose';
+import { DepartmentsService } from '../departments/departments.service';
 
 describe('ColumnsController', () => {
   let controller: ColumnsController;
@@ -19,6 +20,13 @@ describe('ColumnsController', () => {
             create: jest.fn(),
             save: jest.fn(),
             updateOne: jest.fn(),
+          },
+        },
+        {
+          provide: DepartmentsService,
+          useValue: {
+            findOne: jest.fn(),
+            findAllByOrganizationIds: jest.fn(),
           },
         },
       ],

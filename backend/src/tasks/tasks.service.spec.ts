@@ -25,6 +25,12 @@ describe('TasksService', () => {
             findById: jest.fn(),
           },
         },
+        {
+          provide: getModelToken('Department'),
+          useValue: {
+            findById: jest.fn(),
+          },
+        },
       ],
     }).compile();
 

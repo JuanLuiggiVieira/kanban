@@ -21,6 +21,17 @@ export class DepartmentsService {
     return this.departmentModel.find().exec();
   }
 
+  async findAllByOrganizationId(organizationId: string): Promise<Department[]> {
+    return this.departmentModel.find({ organizationId }).exec();
+  }
+
+  async findAllByOrganizationIds(organizationIds: string[]): Promise<Department[]> {
+    if (!organizationIds.length) return [];
+    return this.departmentModel
+      .find({ organizationId: { $in: organizationIds } })
+      .exec();
+  }
+
   async findOne(id: string): Promise<Department> {
     const dept = await this.departmentModel.findById(id).exec();
     if (!dept) {

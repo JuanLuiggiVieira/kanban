@@ -5,6 +5,10 @@ import { Task, TaskDocument } from './schemas/task.schema';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Column, ColumnDocument } from '../columns/schemas/column.schema';
+import {
+  Department,
+  DepartmentDocument,
+} from '../departments/schemas/department.schema';
 
 @Injectable()
 export class TasksService {
@@ -13,6 +17,8 @@ export class TasksService {
     private readonly taskModel: Model<TaskDocument>,
     @InjectModel(Column.name)
     private readonly columnModel: Model<ColumnDocument>,
+    @InjectModel(Department.name)
+    private readonly departmentModel: Model<DepartmentDocument>,
   ) {}
 
   private async ensureColumnBelongsToScope(
@@ -29,9 +35,15 @@ export class TasksService {
       throw new NotFoundException('Column does not belong to the given department');
     }
 
-    // Department belongs to one organization in this model; tasks enforce explicit organization.
-    if (!organizationId) {
-      throw new NotFoundException('Organization ID is required');
+    const department = await this.departmentModel.findById(departmentId).exec();
+    if (!department) {
+      throw new NotFoundException(`Department with ID ${departmentId} not found`);
+    }
+
+    if (department.organizationId.toString() !== organizationId) {
+      throw new NotFoundException(
+        'Department does not belong to the given organization',
+      );
     }
   }
 
@@ -52,6 +64,14 @@ export class TasksService {
   async findAll(): Promise<Task[]> {
     return this.taskModel
       .find()
+      .populate('columnId', 'name color order semantic departmentId')
+      .exec();
+  }
+
+  async findAllByOrganizationIds(organizationIds: string[]): Promise<Task[]> {
+    if (!organizationIds.length) return [];
+    return this.taskModel
+      .find({ organizationId: { $in: organizationIds } })
       .populate('columnId', 'name color order semantic departmentId')
       .exec();
   }

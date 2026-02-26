@@ -21,6 +21,15 @@ export class ColumnsService {
     return this.columnModel.find().exec();
   }
 
+  async findAllByDepartmentId(departmentId: string): Promise<Column[]> {
+    return this.columnModel.find({ departmentId }).exec();
+  }
+
+  async findAllByDepartmentIds(departmentIds: string[]): Promise<Column[]> {
+    if (!departmentIds.length) return [];
+    return this.columnModel.find({ departmentId: { $in: departmentIds } }).exec();
+  }
+
   async findOne(id: string): Promise<Column> {
     const column = await this.columnModel.findById(id).exec();
     if (!column) {

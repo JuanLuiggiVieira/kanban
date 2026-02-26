@@ -3,9 +3,11 @@ import { ColumnsService } from './columns.service';
 import { ColumnsController } from './columns.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Column, ColumnSchema } from './schemas/column.schema';
+import { DepartmentsModule } from '../departments/departments.module';
 
 @Module({
   imports: [
+    DepartmentsModule,
     MongooseModule.forFeature([{ name: Column.name, schema: ColumnSchema }]),
   ],
   controllers: [ColumnsController],

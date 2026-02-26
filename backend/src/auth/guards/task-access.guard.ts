@@ -5,6 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { TasksService } from '../../tasks/tasks.service';
+import { getUserOrgIds } from '../helpers/get-user-org-ids';
 
 @Injectable()
 export class TaskAccessGuard implements CanActivate {
@@ -19,6 +20,12 @@ export class TaskAccessGuard implements CanActivate {
 
     const task = await this.tasksService.findOne(taskId);
     const userId = user.userId;
+    const taskOrgId = task.organizationId.toString();
+    const userOrgIds = getUserOrgIds(user);
+
+    if (!userOrgIds.includes(taskOrgId)) {
+      throw new ForbiddenException('You do not have access to this organization');
+    }
 
     // 🔒 Se for task pessoal, só o criador pode mexer (independente da role)
     if (task.isPersonal && task.createdBy.toString() !== userId) {
@@ -27,6 +34,7 @@ export class TaskAccessGuard implements CanActivate {
 
     // ✅ Admins e managers podem modificar qualquer outra task
     const isPrivileged = user.roles?.some((role) =>
+      role.organizationId?.toString() === taskOrgId &&
       ['admin', 'manager'].includes(role.role),
     );
     if (isPrivileged) return true;

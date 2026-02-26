@@ -24,6 +24,11 @@ export class OrganizationsService {
     return this.organizationModel.find().exec();
   }
 
+  async findAllByIds(ids: string[]): Promise<Organization[]> {
+    if (!ids.length) return [];
+    return this.organizationModel.find({ _id: { $in: ids } }).exec();
+  }
+
   async findOne(id: string): Promise<Organization> {
     const org = await this.organizationModel.findById(id).exec();
     if (!org) {
