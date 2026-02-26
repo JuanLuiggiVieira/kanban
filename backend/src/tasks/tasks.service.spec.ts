@@ -19,6 +19,12 @@ describe('TasksService', () => {
             updateOne: jest.fn(),
           },
         },
+        {
+          provide: getModelToken('Column'),
+          useValue: {
+            findById: jest.fn(),
+          },
+        },
       ],
     }).compile();
 

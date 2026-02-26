@@ -137,6 +137,7 @@ async function main() {
           color: '#3B82F6',
           departmentId: deptMidgardId,
           order: 0,
+          semantic: 'backlog',
           archived: false,
         }),
         withTimestamps({
@@ -145,6 +146,7 @@ async function main() {
           color: '#F59E0B',
           departmentId: deptMidgardId,
           order: 1,
+          semantic: 'active',
           archived: false,
         }),
         withTimestamps({
@@ -153,6 +155,7 @@ async function main() {
           color: '#10B981',
           departmentId: deptMidgardId,
           order: 2,
+          semantic: 'done',
           archived: false,
         }),
       ],
@@ -174,7 +177,6 @@ async function main() {
           assignedTo: vergilId,
           isPersonal: false,
           priority: 'high',
-          completed: false,
         }),
         withTimestamps({
           title: 'Forge Alliance with Ferrum Lords',
@@ -188,7 +190,6 @@ async function main() {
           assignedTo: vergilId,
           isPersonal: false,
           priority: 'medium',
-          completed: false,
         }),
         withTimestamps({
           title: 'Scout Demon Clans',
@@ -202,7 +203,6 @@ async function main() {
           createdBy: adminId,
           isPersonal: false,
           priority: 'low',
-          completed: false,
         }),
       ],
       { session },

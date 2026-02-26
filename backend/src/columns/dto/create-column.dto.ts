@@ -5,6 +5,7 @@ import {
   IsMongoId,
   IsNumber,
   IsBoolean,
+  IsEnum,
 } from 'class-validator';
 
 export class CreateColumnDto {
@@ -23,6 +24,10 @@ export class CreateColumnDto {
   @IsNotEmpty()
   @IsNumber()
   order: number;
+
+  @IsOptional()
+  @IsEnum(['backlog', 'active', 'done', 'custom'])
+  semantic?: 'backlog' | 'active' | 'done' | 'custom';
 
   @IsOptional()
   @IsBoolean()

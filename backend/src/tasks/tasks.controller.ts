@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   Put,
+  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { MoveTaskColumnDto } from './dto/move-task-column.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TaskAccessGuard } from '../auth/guards/task-access.guard';
 
@@ -43,6 +45,12 @@ export class TasksController {
   @UseGuards(TaskAccessGuard)
   update(@Param('id') id: string, @Body() dto: UpdateTaskDto) {
     return this.tasksService.update(id, dto);
+  }
+
+  @Patch(':id/column')
+  @UseGuards(TaskAccessGuard)
+  moveToColumn(@Param('id') id: string, @Body() dto: MoveTaskColumnDto) {
+    return this.tasksService.moveToColumn(id, dto.columnId);
   }
 
   @Delete(':id')

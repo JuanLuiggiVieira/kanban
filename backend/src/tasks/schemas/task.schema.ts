@@ -37,9 +37,6 @@ export class Task {
 
   @Prop({ enum: ['low', 'medium', 'high'], default: 'medium' })
   priority: 'low' | 'medium' | 'high';
-
-  @Prop({ default: false })
-  completed?: boolean;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

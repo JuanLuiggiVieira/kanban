@@ -17,6 +17,12 @@ export class Column {
   @Prop({ required: true })
   order: number;
 
+  @Prop({
+    enum: ['backlog', 'active', 'done', 'custom'],
+    default: 'custom',
+  })
+  semantic?: 'backlog' | 'active' | 'done' | 'custom';
+
   @Prop({ default: false })
   archived?: boolean;
 }

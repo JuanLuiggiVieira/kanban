@@ -4,10 +4,14 @@ import { TasksController } from './tasks.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Task, TaskSchema } from './schemas/task.schema';
 import { TaskAccessGuard } from '../auth/guards/task-access.guard';
+import { Column, ColumnSchema } from '../columns/schemas/column.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Task.name, schema: TaskSchema }]),
+    MongooseModule.forFeature([
+      { name: Task.name, schema: TaskSchema },
+      { name: Column.name, schema: ColumnSchema },
+    ]),
   ],
   controllers: [TasksController],
   providers: [TasksService, TaskAccessGuard],
