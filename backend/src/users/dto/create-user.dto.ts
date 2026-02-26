@@ -1,4 +1,22 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEmail,
+  IsIn,
+  IsMongoId,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+
+class UserRoleDto {
+  @IsMongoId()
+  organizationId: string;
+
+  @IsIn(['admin', 'manager', 'employee'])
+  role: 'admin' | 'manager' | 'employee';
+}
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -13,8 +31,8 @@ export class CreateUserDto {
   password: string;
 
   @IsOptional()
-  organizations?: {
-    organizationId: string;
-    role: 'admin' | 'manager' | 'user';
-  }[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UserRoleDto)
+  roles?: UserRoleDto[];
 }

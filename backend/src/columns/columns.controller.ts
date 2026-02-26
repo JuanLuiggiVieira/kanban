@@ -6,12 +6,18 @@ import {
   Param,
   Delete,
   Put,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ColumnsService } from './columns.service';
 import { CreateColumnDto } from './dto/create-column.dto';
 import { UpdateColumnDto } from './dto/update-column.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('columns')
+@ApiTags('Columns')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class ColumnsController {
   constructor(private readonly columnService: ColumnsService) {}
 

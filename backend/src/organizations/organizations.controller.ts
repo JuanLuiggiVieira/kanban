@@ -6,12 +6,18 @@ import {
   Param,
   Delete,
   Put,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { OrganizationsService } from './organizations.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('organizations')
+@ApiTags('Organizations')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class OrganizationsController {
   constructor(private readonly orgService: OrganizationsService) {}
 

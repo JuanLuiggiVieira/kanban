@@ -6,6 +6,8 @@ import { AppModule } from '../src/app.module';
 describe('Auth & Users E2E (e2e)', () => {
   let app: INestApplication;
   let accessToken: string;
+  const email = `e2e-${Date.now()}@example.com`;
+  const password = 'Test1234!';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -17,15 +19,22 @@ describe('Auth & Users E2E (e2e)', () => {
   });
 
   it('should return access_token with correct credentials', async () => {
+    const createUserResponse = await request(app.getHttpServer())
+      .post('/users')
+      .send({
+        name: 'E2E User',
+        email,
+        password,
+      });
+
+    expect(createUserResponse.status).toBe(201);
+
     const loginResponse = await request(app.getHttpServer())
       .post('/auth/login')
       .send({
-        email: 'admin2.juan@example.com',
-        password: 'Test1234!',
+        email,
+        password,
       });
-
-    console.log('🔐 Login response status:', loginResponse.status);
-    console.log('🔐 Token:', loginResponse.body.access_token);
 
     expect(loginResponse.status).toBe(200);
     expect(loginResponse.body.access_token).toBeDefined();
@@ -43,20 +52,17 @@ describe('Auth & Users E2E (e2e)', () => {
   });
 
   it('should allow access to protected /users route with valid token', async () => {
-    console.log('➡️ Trying to call /users with token:', accessToken);
-
     const res = await request(app.getHttpServer())
       .get('/users')
       .set('Authorization', `Bearer ${accessToken}`);
 
-    console.log('⬅️ /users response status:', res.status);
-    console.log('⬅️ /users response body:', res.body);
-
     expect(res.status).toBe(200);
-    expect(res.text).toEqual('Protected user list');
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 });

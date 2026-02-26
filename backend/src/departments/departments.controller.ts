@@ -6,12 +6,18 @@ import {
   Param,
   Delete,
   Put,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DepartmentsService } from './departments.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('departments')
+@ApiTags('Departments')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class DepartmentsController {
   constructor(private readonly deptService: DepartmentsService) {}
 

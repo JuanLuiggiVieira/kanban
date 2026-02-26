@@ -5,6 +5,8 @@ import {
   IsMongoId,
   IsArray,
   IsDateString,
+  IsEnum,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateTaskDto {
@@ -28,10 +30,6 @@ export class CreateTaskDto {
   @IsMongoId()
   departmentId: string;
 
-  @IsNotEmpty()
-  @IsMongoId()
-  createdBy: string;
-
   @IsOptional()
   @IsMongoId()
   assignedTo?: string;
@@ -46,8 +44,10 @@ export class CreateTaskDto {
   attachments?: string[];
 
   @IsOptional()
+  @IsEnum(['low', 'medium', 'high'])
   priority?: 'low' | 'medium' | 'high';
 
   @IsOptional()
+  @IsBoolean()
   isPersonal?: boolean;
 }

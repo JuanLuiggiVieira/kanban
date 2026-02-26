@@ -1,5 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Types } from 'mongoose';
+import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateDepartmentDto {
   @IsNotEmpty()
@@ -11,5 +10,6 @@ export class CreateDepartmentDto {
   description?: string;
 
   @IsNotEmpty()
-  organizationId: Types.ObjectId;
+  @IsMongoId()
+  organizationId: string;
 }

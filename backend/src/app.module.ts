@@ -12,10 +12,18 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      ignoreEnvFile: process.env.NODE_ENV === 'test',
+    }),
     UsersModule,
     MongooseModule.forRoot(
-      process.env.MONGO_URI ?? 'mongodb://localhost:27017/kanban',
+      process.env.MONGO_URI ?? 'mongodb://127.0.0.1:27017/kanban',
+      {
+        serverSelectionTimeoutMS: process.env.NODE_ENV === 'test' ? 2000 : 30000,
+        retryAttempts: process.env.NODE_ENV === 'test' ? 0 : 9,
+        retryDelay: process.env.NODE_ENV === 'test' ? 0 : 3000,
+      },
     ),
     OrganizationsModule,
     DepartmentsModule,
