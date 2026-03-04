@@ -4,3 +4,7 @@ dist/
 mongo-data/
 Dockerfile
 docker-compose.override.yml
+docs
+tools
+AGENTS.md
+.mcp.example.json

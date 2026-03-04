@@ -17,6 +17,26 @@ describe('UsersService', () => {
             create: jest.fn(),
             save: jest.fn(),
             updateOne: jest.fn(),
+            findById: jest.fn(),
+          },
+        },
+        {
+          provide: getModelToken('Organization'),
+          useValue: {
+            findOne: jest.fn(),
+          },
+        },
+        {
+          provide: getModelToken('Department'),
+          useValue: {
+            findOne: jest.fn(),
+          },
+        },
+        {
+          provide: getModelToken('Column'),
+          useValue: {
+            find: jest.fn(),
+            insertMany: jest.fn(),
           },
         },
       ],
