@@ -16,6 +16,7 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { MoveTaskColumnDto } from './dto/move-task-column.dto';
+import { AssignTaskDto } from './dto/assign-task.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TaskAccessGuard } from '../auth/guards/task-access.guard';
 import { getUserOrgIds } from '../auth/helpers/get-user-org-ids';
@@ -73,6 +74,39 @@ export class TasksController {
   @UseGuards(TaskAccessGuard)
   moveToColumn(@Param('id') id: string, @Body() dto: MoveTaskColumnDto) {
     return this.tasksService.moveToColumn(id, dto.columnId);
+  }
+
+  @Post(':id/claim')
+  claim(@Req() req: { user: { userId: string; roles?: unknown[] } }, @Param('id') id: string) {
+    return this.tasksService.claim(id, req.user);
+  }
+
+  @Post(':id/unclaim')
+  @UseGuards(TaskAccessGuard)
+  unclaim(
+    @Req() req: {
+      user: {
+        userId: string;
+        roles?: { organizationId?: unknown; role?: string }[];
+      };
+    },
+    @Param('id') id: string,
+  ) {
+    return this.tasksService.unclaim(id, req.user);
+  }
+
+  @Post(':id/assign')
+  assign(
+    @Req() req: {
+      user: {
+        userId: string;
+        roles?: { organizationId?: unknown; role?: string }[];
+      };
+    },
+    @Param('id') id: string,
+    @Body() dto: AssignTaskDto,
+  ) {
+    return this.tasksService.assignToUser(id, dto.assigneeId, req.user);
   }
 
   @Delete(':id')

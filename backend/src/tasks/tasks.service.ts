@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Task, TaskDocument } from './schemas/task.schema';
@@ -9,6 +14,8 @@ import {
   Department,
   DepartmentDocument,
 } from '../departments/schemas/department.schema';
+import { getUserOrgIds } from '../auth/helpers/get-user-org-ids';
+import { User, UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
 export class TasksService {
@@ -19,6 +26,8 @@ export class TasksService {
     private readonly columnModel: Model<ColumnDocument>,
     @InjectModel(Department.name)
     private readonly departmentModel: Model<DepartmentDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
   private async ensureColumnBelongsToScope(
@@ -126,6 +135,115 @@ export class TasksService {
 
     const updatedTask = await this.taskModel
       .findByIdAndUpdate(id, { columnId }, { new: true })
+      .populate('columnId', 'name color order semantic departmentId')
+      .exec();
+
+    if (!updatedTask) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    return updatedTask;
+  }
+
+  async claim(id: string, user: { userId: string; roles?: unknown[] }): Promise<Task> {
+    const task = await this.taskModel.findById(id).exec();
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    const taskOrgId = task.organizationId.toString();
+    const userOrgIds = getUserOrgIds(user);
+    if (!userOrgIds.includes(taskOrgId)) {
+      throw new ForbiddenException('You do not have access to this organization');
+    }
+
+    if (task.assignedTo) {
+      throw new ConflictException('Task is already assigned');
+    }
+
+    const updatedTask = await this.taskModel
+      .findByIdAndUpdate(id, { assignedTo: user.userId }, { new: true })
+      .populate('columnId', 'name color order semantic departmentId')
+      .exec();
+
+    if (!updatedTask) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    return updatedTask;
+  }
+
+  async unclaim(
+    id: string,
+    user: { userId: string; roles?: { organizationId?: unknown; role?: string }[] },
+  ): Promise<Task> {
+    const task = await this.taskModel.findById(id).exec();
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    const taskOrgId = task.organizationId.toString();
+    const isPrivileged = user.roles?.some(
+      (role) =>
+        role.organizationId?.toString() === taskOrgId &&
+        ['admin', 'manager'].includes(String(role.role)),
+    );
+    const assignedToUserId = task.assignedTo?.toString();
+    const isOwner = assignedToUserId === user.userId;
+
+    if (!isPrivileged && !isOwner) {
+      throw new ForbiddenException('You cannot unclaim this task');
+    }
+
+    const updatedTask = await this.taskModel
+      .findByIdAndUpdate(id, { assignedTo: null }, { new: true })
+      .populate('columnId', 'name color order semantic departmentId')
+      .exec();
+
+    if (!updatedTask) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    return updatedTask;
+  }
+
+  async assignToUser(
+    id: string,
+    assigneeId: string,
+    user: { userId: string; roles?: { organizationId?: unknown; role?: string }[] },
+  ): Promise<Task> {
+    const task = await this.taskModel.findById(id).exec();
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    const taskOrgId = task.organizationId.toString();
+    const isPrivileged = user.roles?.some(
+      (role) =>
+        role.organizationId?.toString() === taskOrgId &&
+        ['admin', 'manager'].includes(String(role.role)),
+    );
+    if (!isPrivileged) {
+      throw new ForbiddenException('Only manager/admin can assign this task');
+    }
+
+    const assignee = await this.userModel.findById(assigneeId).exec();
+    if (!assignee) {
+      throw new NotFoundException(`User with ID ${assigneeId} not found`);
+    }
+
+    const isWorkerInOrg = assignee.roles?.some(
+      (role) =>
+        role.organizationId?.toString() === taskOrgId && role.role === 'employee',
+    );
+    if (!isWorkerInOrg) {
+      throw new ForbiddenException(
+        'Assignee must be an employee in the same organization',
+      );
+    }
+
+    const updatedTask = await this.taskModel
+      .findByIdAndUpdate(id, { assignedTo: assigneeId }, { new: true })
       .populate('columnId', 'name color order semantic departmentId')
       .exec();
 

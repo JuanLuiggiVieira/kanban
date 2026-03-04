@@ -9,6 +9,7 @@ import {
   Department,
   DepartmentSchema,
 } from '../departments/schemas/department.schema';
+import { User, UserSchema } from '../users/schemas/user.schema';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import {
       { name: Task.name, schema: TaskSchema },
       { name: Column.name, schema: ColumnSchema },
       { name: Department.name, schema: DepartmentSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   controllers: [TasksController],
